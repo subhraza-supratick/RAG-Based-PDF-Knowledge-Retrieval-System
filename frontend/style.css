@@ -512,6 +512,7 @@ body {
 
 /* Top Bar Controls */
 .top-bar {
+    position: relative;
     height: 68px;
     padding: 0 24px;
     background: rgba(253, 251, 247, 0.92);
@@ -574,6 +575,9 @@ body {
 
 /* Navigation Tabs */
 .nav-tabs {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     background: #f5f0e6;
     padding: 4px;
