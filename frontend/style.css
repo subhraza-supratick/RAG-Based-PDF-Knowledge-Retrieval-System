@@ -81,6 +81,16 @@ body {
 }
 
 /* ─── ANIMATED BACKGROUND ORBS & AMBIENT MESH ────────────────────────────── */
+.bg-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.75;
+}
+
 .bg-orb {
     position: fixed;
     border-radius: 50%;
