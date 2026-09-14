@@ -28,7 +28,7 @@ CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "1000"))
 CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "150"))
 DEFAULT_TOP_K = int(os.getenv("DEFAULT_TOP_K", "5"))
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "gemini-embedding-001")
-LLM_MODEL = os.getenv("LLM_MODEL", os.getenv("GEMINI_MODEL", "gemini-2.5-flash"))
+LLM_MODEL = os.getenv("LLM_MODEL", os.getenv("GEMINI_MODEL", "gemini-3.6-flash"))
 
 # Ensure directories exist
 DB_PATH.parent.mkdir(parents=True, exist_ok=True)

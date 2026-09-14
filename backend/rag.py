@@ -79,19 +79,27 @@ def generate_grounded_answer(
     answer_text = ""
     is_fallback = False
 
-    # 3. LLM Answer Generation with Quota/Limit Fallback
+    # 3. LLM Answer Generation with Quota/Limit & Multi-Model Fallback
     if client:
-        try:
-            response = client.models.generate_content(
-                model=LLM_MODEL,
-                contents=prompt
-            )
-            answer_text = response.text.strip() if (response and response.text) else ""
-            if "Gemini API error" in answer_text or "429" in answer_text or "RESOURCE_EXHAUSTED" in answer_text:
-                answer_text = ""
-                is_fallback = True
-        except Exception:
-            answer_text = ""
+        candidates = [LLM_MODEL, "gemini-3.6-flash", "gemini-2.5-flash"]
+        seen = set()
+        models_to_try = [m for m in candidates if not (m in seen or seen.add(m))]
+
+        for model_name in models_to_try:
+            try:
+                response = client.models.generate_content(
+                    model=model_name,
+                    contents=prompt
+                )
+                txt = response.text.strip() if (response and response.text) else ""
+                if txt and not any(err in txt for err in ["Gemini API error", "429", "RESOURCE_EXHAUSTED"]):
+                    answer_text = txt
+                    is_fallback = False
+                    break
+            except Exception:
+                continue
+
+        if not answer_text:
             is_fallback = True
     else:
         is_fallback = True
