@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOCSENSE AI — Enterprise PDF Document Intelligence</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app-shell">
+        <!-- ─── LEFT SIDEBAR ───────────────────────────────────────────── -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="brand">
+                    <div class="brand-logo">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        <div class="logo-glow"></div>
+                    </div>
+                    <div class="brand-info">
+                        <span class="brand-title">DOCSENSE <span class="brand-badge">AI</span></span>
+                        <span class="brand-sub">Vector Document RAG Engine</span>
+                    </div>
+                </div>
+                <button class="btn-primary-glow btn-block" id="sidebarUploadBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    <span>Upload New PDF</span>
+                </button>
+            </div>
+
+            <!-- Document Repository List -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-header">
+                    <span class="sidebar-label">Document Repository</span>
+                    <span class="doc-count-badge" id="docCountBadge">0</span>
+                </div>
+                <div class="sidebar-doc-selector" style="display: none;">
+                    <select id="docSelect" class="doc-select">
+                        <option value="">-- Select Active Document --</option>
+                    </select>
+                </div>
+                <div class="sidebar-doc-list" id="sidebarDocList">
+                    <div class="empty-docs-notice">No documents indexed yet. Upload a PDF to begin.</div>
+                </div>
+            </div>
+
+            <!-- System Info Widget -->
+            <div class="sidebar-footer">
+                <div class="system-card">
+                    <div class="system-card-title">
+                        <span class="status-indicator active"></span>
+                        <span>Vector Storage Engine</span>
+                    </div>
+                    <div class="system-card-details">
+                        <div class="system-row">
+                            <span>Index Type</span>
+                            <span class="val-mono">SQLite Vector</span>
+                        </div>
+                        <div class="system-row">
+                            <span>Embedding</span>
+                            <span class="val-mono">Gemini 768-dim</span>
+                        </div>
+                        <div class="system-row">
+                            <span>Retrieval</span>
+                            <span class="val-mono">Cosine Sim</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ─── MAIN WORKSPACE AREA ────────────────────────────────────── -->
+        <div class="workspace-main">
+            <!-- Top Control Bar -->
+            <header class="top-bar">
+                <div class="top-bar-left">
+                    <div class="active-doc-badge" id="activeDocBadge" style="display: none;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                        <span class="doc-name-text" id="activeDocName">Document.pdf</span>
+                        <span class="doc-pages-badge" id="activeDocPages">0 pages</span>
+                    </div>
+                    <div class="no-doc-badge" id="noDocBadge">
+                        <span>No Document Selected</span>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <nav class="nav-tabs" id="navTabs">
+                    <button class="nav-tab active" data-tab="chat" id="tabChat">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                        <span>AI Assistant</span>
+                    </button>
+                    <button class="nav-tab" data-tab="inspector" id="tabInspector">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                        </svg>
+                        <span>Chunks & Text</span>
+                    </button>
+                    <button class="nav-tab" data-tab="pipeline" id="tabPipeline">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                        </svg>
+                        <span>Indexing Pipeline</span>
+                    </button>
+                </nav>
+
+                <div class="top-bar-right">
+                    <!-- Top K Slider Control -->
+                    <div class="top-k-control">
+                        <label for="topKSlider">Context Chunks (Top K): <span id="topKVal" class="val-mono">5</span></label>
+                        <input type="range" id="topKSlider" min="1" max="10" value="5" step="1">
+                    </div>
+                    <button id="deleteDocBtn" class="btn-icon danger" title="Delete Active Document" style="display:none;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Notification Banner -->
+            <div id="statusBanner" class="status-banner hidden"></div>
+
+            <!-- ─── WORKSPACE CONTENT PANELS ─────────────────────────────── -->
+            <main class="workspace-body">
+
+                <!-- 1. UPLOAD & EMPTY STATE -->
+                <section id="uploadState" class="state-panel upload-panel">
+                    <div class="upload-zone-wrapper">
+                        <div class="upload-zone" id="dropZone">
+                            <div class="upload-illustration">
+                                <div class="icon-circle">
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="17 8 12 3 7 8"></polyline>
+                                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                                    </svg>
+                                </div>
+                                <div class="pulse-ring"></div>
+                            </div>
+                            <h2>Drop your PDF Document here</h2>
+                            <p>Upload financial statements, research papers, legal contracts, or technical manuals</p>
+                            
+                            <div class="file-input-wrapper">
+                                <input type="file" id="pdfFileInput" accept=".pdf">
+                                <button class="btn-primary-glow" onclick="document.getElementById('pdfFileInput').click()">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                    </svg>
+                                    <span>Browse Local PDF File</span>
+                                </button>
+                            </div>
+                            <div class="upload-features">
+                                <span class="feature-tag">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                    Page-Aware PyPDF Extraction
+                                </span>
+                                <span class="feature-tag">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                    Recursive Character Chunking
+                                </span>
+                                <span class="feature-tag">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                    SQLite Cosine Vector Index
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. INDEXING & PIPELINE VISUALIZER STATE -->
+                <section id="indexingState" class="state-panel indexing-panel hidden">
+                    <div class="indexing-container">
+                        <div class="indexing-header-card">
+                            <div class="loader-ring">
+                                <div class="spinner"></div>
+                            </div>
+                            <div class="indexing-header-info">
+                                <h2 id="indexingTitle">Processing Document...</h2>
+                                <p class="indexing-sub">Extracting text layout, computing embeddings, and storing vector BLOBs</p>
+                            </div>
+                        </div>
+
+                        <!-- 5-Step Pipeline Grid -->
+                        <div class="pipeline-flow">
+                            <div class="pipeline-node" id="stepUpload">
+                                <div class="node-icon">1</div>
+                                <div class="node-content">
+                                    <span class="node-title">Disk Upload</span>
+                                    <span class="node-desc">Save PDF file to local server storage</span>
+                                </div>
+                                <span class="node-status-badge">Waiting</span>
+                            </div>
+
+                            <div class="pipeline-connector"></div>
+
+                            <div class="pipeline-node" id="stepExtract">
+                                <div class="node-icon">2</div>
+                                <div class="node-content">
+                                    <span class="node-title">Page Extraction</span>
+                                    <span class="node-desc">PyPDF page parsing & structure detection</span>
+                                </div>
+                                <span class="node-status-badge">Waiting</span>
+                            </div>
+
+                            <div class="pipeline-connector"></div>
+
+                            <div class="pipeline-node" id="stepChunk">
+                                <div class="node-icon">3</div>
+                                <div class="node-content">
+                                    <span class="node-title">Text Chunking</span>
+                                    <span class="node-desc">Recursive sliding window (800-1200 chars)</span>
+                                </div>
+                                <span class="node-status-badge">Waiting</span>
+                            </div>
+
+                            <div class="pipeline-connector"></div>
+
+                            <div class="pipeline-node" id="stepEmbed">
+                                <div class="node-icon">4</div>
+                                <div class="node-content">
+                                    <span class="node-title">Gemini Embeddings</span>
+                                    <span class="node-desc">Generate 768-dimensional dense vectors</span>
+                                </div>
+                                <span class="node-status-badge">Waiting</span>
+                            </div>
+
+                            <div class="pipeline-connector"></div>
+
+                            <div class="pipeline-node" id="stepSave">
+                                <div class="node-icon">5</div>
+                                <div class="node-content">
+                                    <span class="node-title">Vector Indexing</span>
+                                    <span class="node-desc">Persist chunks & BLOBs into SQLite</span>
+                                </div>
+                                <span class="node-status-badge">Waiting</span>
+                            </div>
+                        </div>
+
+                        <div class="progress-section">
+                            <div class="progress-bar-wrapper">
+                                <div id="progressBar" class="progress-bar-fill"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. AI CHAT & Q&A WORKSPACE STATE -->
+                <section id="chatState" class="state-panel chat-panel hidden">
+                    <div class="chat-layout">
+                        <!-- Continuous Chat Thread Messages -->
+                        <div class="chat-thread-container" id="chatThread">
+                            <div class="chat-welcome-hero">
+                                <div class="hero-icon">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                    </svg>
+                                </div>
+                                <h3>DocSense AI Ready</h3>
+                                <p>Ask grounded questions about your active PDF. Answers are strictly synthesized from retrieved vector citations.</p>
+                            </div>
+                        </div>
+
+                        <!-- Answer & Citation Cards Display Container (Synced with app.js) -->
+                        <div id="answerSection" class="answer-section hidden">
+                            <div class="answer-card">
+                                <div class="answer-header">
+                                    <div class="ai-badge">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                        </svg>
+                                        <span>GROUNDED ANSWER</span>
+                                    </div>
+                                    <div class="metrics-pills">
+                                        <span class="metric-pill" id="retrievalTimePill">Retrieval: -- ms</span>
+                                        <span class="metric-pill" id="generationTimePill">Generation: -- ms</span>
+                                    </div>
+                                </div>
+                                
+                                <div id="answerText" class="answer-body"></div>
+
+                                <!-- Grounded Source Citations -->
+                                <div class="citations-wrapper">
+                                    <div class="citations-header">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                            <polyline points="14 2 14 8 20 8"></polyline>
+                                        </svg>
+                                        <span>PAGE CITATIONS & RELEVANCE (<span id="sourceCount">0</span>)</span>
+                                    </div>
+                                    <div id="citationsContainer" class="citations-container"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Question Loading Indicator -->
+                        <div id="questionLoader" class="question-loader hidden">
+                            <div class="loader-pulse">
+                                <div class="spinner-sm"></div>
+                                <span>Running cosine similarity search & synthesizing response...</span>
+                            </div>
+                        </div>
+
+                        <!-- Chat Controls Bar (Suggested Prompts & Input) -->
+                        <div class="chat-input-bar">
+                            <!-- Analyst Preset Prompt Chips -->
+                            <div class="analyst-prompts">
+                                <span class="prompt-label">Quick Analysis:</span>
+                                <button class="prompt-chip" onclick="setQuestion('What was total revenue and net income?')">💰 Revenue & Income</button>
+                                <button class="prompt-chip" onclick="setQuestion('What caused operating expenses to change?')">📊 Operating Expenses</button>
+                                <button class="prompt-chip" onclick="setQuestion('What key risks did management identify?')">⚠️ Risk Factors</button>
+                                <button class="prompt-chip" onclick="setQuestion('Summarize the key growth highlights and strategic goals')">🚀 Growth Strategy</button>
+                            </div>
+
+                            <!-- Input Form -->
+                            <form id="askForm" class="ask-form">
+                                <div class="input-wrapper">
+                                    <input type="text" id="questionInput" placeholder="Ask any question about the indexed document..." autocomplete="off" required>
+                                    <button type="submit" id="askSubmitBtn" class="btn-send">
+                                        <span>Ask AI</span>
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. DOCUMENT CHUNKS & TEXT INSPECTOR WORKSPACE -->
+                <section id="inspectorState" class="state-panel inspector-panel hidden">
+                    <div class="inspector-card">
+                        <div class="inspector-header">
+                            <div>
+                                <h3>Document Text & Vector Chunks Explorer</h3>
+                                <p class="sub-text">Inspect the extracted chunks stored in SQLite vector database</p>
+                            </div>
+                            <button class="btn-secondary btn-sm" id="uploadAnotherBtn">+ Upload New PDF</button>
+                        </div>
+                        <div id="chunkInspectorList" class="chunk-list-container">
+                            <div class="inspector-empty">Select or process a document to view chunk metadata.</div>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+
+            <!-- App Footer -->
+            <footer class="app-footer">
+                <span>DOCSENSE Local AI &bull; SQLite Cosine Vector Storage &bull; Grounded Gemini RAG</span>
+            </footer>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
+

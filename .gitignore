@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.venv/
+
+# Environment variables
+.env
+
+# SQLite Database
+*.db
+*.sqlite3
+data/*.db
+data/uploads/*
+!data/uploads/.gitkeep
+
+# Testing & Byte code
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+
+# PDF Files
+*.pdf
