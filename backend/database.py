@@ -1,5 +1,7 @@
 import sqlite3
 import datetime
+import hashlib
+import json
 import numpy as np
 from typing import List, Dict, Any, Optional
 from backend.config import DB_PATH
@@ -10,7 +12,7 @@ def get_connection() -> sqlite3.Connection:
     return conn
 
 def init_db() -> None:
-    """Initialize SQLite database tables for documents and vector chunks."""
+    """Initialize SQLite database tables for documents, vector chunks, and query cache."""
     with get_connection() as conn:
         cursor = conn.cursor()
         cursor.execute("""
@@ -31,6 +33,22 @@ def init_db() -> None:
                 embedding BLOB NOT NULL,
                 FOREIGN KEY (document_id) REFERENCES documents (id) ON DELETE CASCADE
             );
+        """)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS query_cache (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                question_hash TEXT NOT NULL,
+                question TEXT NOT NULL,
+                document_id INTEGER,
+                top_k INTEGER NOT NULL,
+                answer TEXT NOT NULL,
+                sources_json TEXT NOT NULL,
+                is_fallback INTEGER DEFAULT 0,
+                created_at TEXT NOT NULL
+            );
+        """)
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_query_cache_hash ON query_cache(question_hash);
         """)
         conn.commit()
 
@@ -134,3 +152,58 @@ def get_all_chunks(doc_id: Optional[int] = None) -> List[Dict[str, Any]]:
             row_dict["embedding"] = np.frombuffer(row_dict["embedding"], dtype=np.float32)
             result.append(row_dict)
         return result
+
+def _hash_query(question: str, document_id: Optional[int], top_k: int) -> str:
+    raw_str = f"{question.strip().lower()}:{document_id}:{top_k}"
+    return hashlib.sha256(raw_str.encode('utf-8')).hexdigest()
+
+def get_cached_answer(question: str, document_id: Optional[int], top_k: int) -> Optional[Dict[str, Any]]:
+    """Retrieve cached query response if available."""
+    q_hash = _hash_query(question, document_id, top_k)
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT answer, sources_json, is_fallback FROM query_cache
+            WHERE question_hash = ? ORDER BY id DESC LIMIT 1
+        """, (q_hash,))
+        row = cursor.fetchone()
+        if row:
+            sources = json.loads(row["sources_json"]) if row["sources_json"] else []
+            return {
+                "answer": row["answer"],
+                "sources": sources,
+                "is_fallback": bool(row["is_fallback"]),
+                "cached": True,
+                "metrics": {"retrieval_ms": 0.0, "generation_ms": 0.0, "cached": True}
+            }
+        return None
+
+def save_cached_answer(
+    question: str,
+    document_id: Optional[int],
+    top_k: int,
+    answer: str,
+    sources: List[Dict[str, Any]],
+    is_fallback: bool = False
+) -> None:
+    """Store query answer and sources in query_cache table."""
+    q_hash = _hash_query(question, document_id, top_k)
+    sources_json = json.dumps(sources)
+    created_at = datetime.datetime.utcnow().isoformat()
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO query_cache (question_hash, question, document_id, top_k, answer, sources_json, is_fallback, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (q_hash, question, document_id, top_k, answer, sources_json, 1 if is_fallback else 0, created_at))
+        conn.commit()
+
+def clear_query_cache(document_id: Optional[int] = None) -> None:
+    """Invalidate cache entries for a specific document or all documents."""
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        if document_id is not None:
+            cursor.execute("DELETE FROM query_cache WHERE document_id = ?", (document_id,))
+        else:
+            cursor.execute("DELETE FROM query_cache")
+        conn.commit()

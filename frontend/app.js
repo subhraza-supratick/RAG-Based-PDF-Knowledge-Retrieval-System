@@ -391,8 +391,18 @@ askForm.addEventListener('submit', async e => {
 
 function renderAnswer(data) {
   answerText.innerHTML = formatMarkdown(data.answer) || '(No answer text returned)';
-  retrievalTimePill.textContent  = `Retrieval: ${data.metrics?.retrieval_ms ?? '--'} ms`;
-  generationTimePill.textContent = `Generation: ${data.metrics?.generation_ms ?? '--'} ms`;
+  
+  if (data.cached) {
+    retrievalTimePill.innerHTML  = `<span style="color: #34d399; font-weight: 600;">⚡ Memory Cache (0ms)</span>`;
+    generationTimePill.innerHTML = `<span style="color: #34d399; font-weight: 600;">⚡ Instant Retrieval</span>`;
+  } else {
+    retrievalTimePill.textContent  = `Retrieval: ${data.metrics?.retrieval_ms ?? '--'} ms`;
+    generationTimePill.textContent = `Generation: ${data.metrics?.generation_ms ?? '--'} ms`;
+  }
+
+  if (data.is_fallback) {
+    generationTimePill.innerHTML += ` &bull; <span style="color: #fbbf24; font-weight: 600;">🛡️ Offline Fallback</span>`;
+  }
 
   const sources = data.sources || [];
   sourceCount.textContent = sources.length;

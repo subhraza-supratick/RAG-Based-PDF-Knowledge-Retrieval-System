@@ -2,6 +2,7 @@ import time
 from typing import List, Dict, Any, Optional
 from backend.config import GEMINI_API_KEY, LLM_MODEL
 from backend.retriever import retrieve_semantic_chunks
+from backend.database import get_cached_answer, save_cached_answer
 
 _GEMINI_LLM_AVAILABLE = False
 _client = None
@@ -45,36 +46,64 @@ def generate_grounded_answer(
     document_id: Optional[int] = None,
     top_k: int = 5
 ) -> Dict[str, Any]:
-    """Retrieve top-k chunks and generate a grounded Gemini answer with page citations."""
+    """
+    Retrieve top-k chunks and generate a grounded answer with page citations.
+    First checks memory cache for zero-API latency retrieval.
+    Falls back gracefully to offline context summary if API key limits are reached.
+    """
+    # 1. Check Memory System (Query Cache)
+    cached_res = get_cached_answer(question, document_id, top_k)
+    if cached_res is not None:
+        return cached_res
+
+    # 2. Perform Semantic Retrieval
     chunks, retrieval_ms = retrieve_semantic_chunks(question, document_id=document_id, top_k=top_k)
 
     if not chunks or chunks[0]["score"] < 0.05:
-        return {
+        refusal_res = {
             "answer": "I could not find sufficient evidence in the document to answer your question.",
             "sources": [],
+            "is_fallback": False,
             "metrics": {"retrieval_ms": retrieval_ms, "generation_ms": 0.0}
         }
+        return refusal_res
 
     context_str = format_context_blocks(chunks)
     prompt = SYSTEM_PROMPT_TEMPLATE.format(context_text=context_str, question=question)
 
     gen_start = time.perf_counter()
     answer_text = ""
+    is_fallback = False
 
+    # 3. LLM Answer Generation with Quota/Limit Fallback
     if _GEMINI_LLM_AVAILABLE and _client:
         try:
             response = _client.models.generate_content(
                 model=LLM_MODEL,
                 contents=prompt
             )
-            answer_text = response.text.strip() if response.text else ""
-        except Exception as e:
-            answer_text = f"Gemini API error: {str(e)}"
+            answer_text = response.text.strip() if (response and response.text) else ""
+            if "Gemini API error" in answer_text or "429" in answer_text:
+                answer_text = ""
+                is_fallback = True
+        except Exception:
+            answer_text = ""
+            is_fallback = True
 
+    # 4. Local Offline Fallback if LLM unavailable or API Key limit reached
     if not answer_text:
-        top_text = chunks[0]["text"]
-        sentences = [s.strip() for s in top_text.split('.') if len(s.strip()) > 10]
-        answer_text = f"Based on page {chunks[0]['page']}: {sentences[0]}." if sentences else top_text[:200]
+        is_fallback = True
+        bullet_points = []
+        for c in chunks[:3]:
+            clean_excerpt = c["text"].replace("\n", " ").strip()
+            sentences = [s.strip() for s in clean_excerpt.split('.') if len(s.strip()) > 10]
+            summary = sentences[0] + "." if sentences else clean_excerpt[:150]
+            bullet_points.append(f"- **[Page {c['page']}] ({c['filename']})**: {summary}")
+
+        answer_text = (
+            f"**Offline Context Summary** (Served via local fallback due to API quota limit):\n\n"
+            + "\n".join(bullet_points)
+        )
 
     generation_ms = round((time.perf_counter() - gen_start) * 1000.0, 2)
 
@@ -89,8 +118,19 @@ def generate_grounded_answer(
         for c in chunks
     ]
 
+    # 5. Store in Memory Cache for future efficiency
+    save_cached_answer(
+        question=question,
+        document_id=document_id,
+        top_k=top_k,
+        answer=answer_text,
+        sources=sources,
+        is_fallback=is_fallback
+    )
+
     return {
         "answer": answer_text,
         "sources": sources,
+        "is_fallback": is_fallback,
         "metrics": {"retrieval_ms": retrieval_ms, "generation_ms": generation_ms}
     }

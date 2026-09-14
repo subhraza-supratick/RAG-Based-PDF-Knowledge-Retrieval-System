@@ -10,7 +10,8 @@ from rest_framework import status
 from backend.config import UPLOAD_DIR
 from backend.database import (
     init_db, insert_document, insert_chunks,
-    get_all_documents, get_document_by_id, delete_document, get_all_chunks
+    get_all_documents, get_document_by_id, delete_document, get_all_chunks,
+    clear_query_cache
 )
 from backend.pdf_processor import extract_pdf_pages, PDFExtractionError
 from backend.chunker import chunk_document_pages
@@ -109,6 +110,7 @@ def index_document(request, document_id: int):
             chunks_data[idx]["embedding"] = emb
 
         # Store in SQLite
+        clear_query_cache(document_id)
         insert_chunks(chunks_data)
         elapsed_sec = round(time.perf_counter() - start_time, 2)
 
@@ -147,6 +149,7 @@ def remove_document(request, document_id: int):
         except Exception:
             pass
 
+    clear_query_cache(document_id)
     deleted = delete_document(document_id)
     if deleted:
         return Response({"message": f"Document ID {document_id} deleted successfully."}, status=status.HTTP_200_OK)
