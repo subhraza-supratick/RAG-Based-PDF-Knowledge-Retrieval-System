@@ -617,24 +617,6 @@ body {
     gap: 16px;
 }
 
-.top-k-control {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.82rem;
-    color: var(--text-secondary);
-    background: #ffffff;
-    padding: 7px 14px;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border-color);
-}
-
-.top-k-control input[type="range"] {
-    width: 90px;
-    accent-color: var(--accent-burgundy);
-    cursor: pointer;
-}
-
 /* Status Banner Notifications */
 .status-banner {
     padding: 12px 24px;

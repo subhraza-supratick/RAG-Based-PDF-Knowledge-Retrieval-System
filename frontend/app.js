@@ -40,8 +40,6 @@ const noDocBadge        = document.getElementById('noDocBadge');
 const sidebarUploadBtn  = document.getElementById('sidebarUploadBtn');
 const uploadAnotherBtn  = document.getElementById('uploadAnotherBtn');
 const navTabs           = document.getElementById('navTabs');
-const topKSlider        = document.getElementById('topKSlider');
-const topKVal           = document.getElementById('topKVal');
 const chunkInspectorList= document.getElementById('chunkInspectorList');
 const chatThread        = document.getElementById('chatThread');
 
@@ -92,11 +90,6 @@ navTabs?.addEventListener('click', e => {
   if (tabBtn && tabBtn.dataset.tab) {
     switchTab(tabBtn.dataset.tab);
   }
-});
-
-topKSlider?.addEventListener('input', e => {
-  state.topK = parseInt(e.target.value, 10);
-  topKVal.textContent = state.topK;
 });
 
 function showState(name) {
