@@ -63,7 +63,7 @@ def generate_grounded_answer(
     # 2. Perform Semantic Retrieval
     chunks, retrieval_ms = retrieve_semantic_chunks(question, document_id=document_id, top_k=top_k)
 
-    if not chunks or chunks[0]["score"] < 0.05:
+    if not chunks or chunks[0]["score"] < 0.01:
         refusal_res = {
             "answer": "I could not find sufficient evidence in the document to answer your question.",
             "sources": [],
