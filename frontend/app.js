@@ -126,6 +126,82 @@ function setQuestion(q) {
   questionInput.focus();
 }
 
+function getSuggestionsForDocument(filename) {
+  if (!filename) {
+    return [
+      { label: '📑 Document Summary', query: 'Provide a comprehensive summary of the main points in this document' },
+      { label: '🔍 Core Topics', query: 'What are the primary topics and key concepts discussed in this document?' },
+      { label: '⚠️ Key Insights', query: 'What key findings, important details, or warnings are highlighted in this document?' },
+      { label: '🎯 Key Takeaways', query: 'Summarize the final conclusions and key takeaways from this document' }
+    ];
+  }
+
+  const name = filename.toLowerCase();
+
+  // Programming / Coding / Technical Books & Docs
+  if (name.includes('python') || name.includes('program') || name.includes('code') || name.includes('java') || name.includes('script') || name.includes('dev') || name.includes('tech') || name.includes('api') || name.includes('guide') || name.includes('manual') || name.includes('tutorial')) {
+    return [
+      { label: '📘 Document Overview', query: 'Summarize the main programming concepts and topics covered in this document' },
+      { label: '🐍 Data Types & Syntax', query: 'What are the key data types, syntax rules, and fundamentals explained in this document?' },
+      { label: '⚙️ Functions & Logic', query: 'Explain the primary functions, classes, and code structures discussed in this document' },
+      { label: '💡 Best Practices', query: 'What key programming techniques, rules, and best practices are highlighted in this document?' }
+    ];
+  }
+
+  // Financial / Business / Reports
+  if (name.includes('report') || name.includes('finan') || name.includes('revenue') || name.includes('annual') || name.includes('tax') || name.includes('budget') || name.includes('statem') || name.includes('audit')) {
+    return [
+      { label: '📝 Executive Summary', query: 'Summarize the key financial findings and executive summary of this document' },
+      { label: '💰 Revenue & Income', query: 'What are the total revenue, net income, and key financial metrics in this document?' },
+      { label: '⚠️ Risk Factors', query: 'What key operational or financial risks did management identify in this document?' },
+      { label: '🚀 Growth Strategy', query: 'Summarize the main growth highlights, strategic goals, and future outlook in this document' }
+    ];
+  }
+
+  // Research / Academic / Scientific Papers
+  if (name.includes('research') || name.includes('paper') || name.includes('study') || name.includes('journal') || name.includes('thesis') || name.includes('scien') || name.includes('survey')) {
+    return [
+      { label: '📄 Core Findings', query: 'Summarize the main research objective and core findings of this paper' },
+      { label: '🎯 Methodology', query: 'What methodology, experimental design, or analytical approach was used in this document?' },
+      { label: '📊 Key Results', query: 'What were the primary data results and key quantitative takeaways in this document?' },
+      { label: '💡 Implications', query: 'What are the main scientific implications, limitations, and future directions discussed?' }
+    ];
+  }
+
+  // Legal / Contract / Policy
+  if (name.includes('contract') || name.includes('agree') || name.includes('policy') || name.includes('terms') || name.includes('legal') || name.includes('clause')) {
+    return [
+      { label: '📜 Contract Overview', query: 'Summarize the key terms, scope, and main purpose of this document' },
+      { label: '⚖️ Obligations & Rights', query: 'What are the primary duties, rights, and obligations specified in this document?' },
+      { label: '⚠️ Risk & Liabilities', query: 'What key liabilities, penalties, or risk conditions are outlined in this document?' },
+      { label: '📅 Dates & Terms', query: 'What are the key deadlines, effective dates, and termination conditions in this document?' }
+    ];
+  }
+
+  // General Document Fallback
+  return [
+    { label: '📑 Document Summary', query: 'Provide a comprehensive summary of the main points in this document' },
+    { label: '🔍 Core Topics', query: 'What are the primary topics and key concepts discussed in this document?' },
+    { label: '⚠️ Key Insights', query: 'What key findings, important details, or warnings are highlighted in this document?' },
+    { label: '🎯 Key Takeaways', query: 'Summarize the final conclusions and key takeaways from this document' }
+  ];
+}
+
+function renderSuggestedPrompts(filename) {
+  const container = document.getElementById('suggestedPromptsContainer');
+  if (!container) return;
+  
+  const suggestions = getSuggestionsForDocument(filename);
+  
+  let html = `<span class="prompt-label">Quick Analysis:</span>`;
+  suggestions.forEach(item => {
+    const safeQuery = item.query.replace(/'/g, "\\'");
+    html += `<button type="button" class="prompt-chip" onclick="setQuestion('${safeQuery}')">${item.label}</button>`;
+  });
+  
+  container.innerHTML = html;
+}
+
 // ─── Sidebar Document Library Manager ─────────────────────────────────────────
 async function loadDocuments() {
   try {
@@ -236,6 +312,7 @@ function selectDocument(doc) {
   deleteDocBtn.style.display = 'flex';
   
   renderSidebarDocuments();
+  renderSuggestedPrompts(doc.filename);
   switchTab('chat');
 }
 
@@ -246,6 +323,7 @@ docSelect.addEventListener('change', () => {
     deleteDocBtn.style.display = 'none';
     if (activeDocBadge) activeDocBadge.style.display = 'none';
     if (noDocBadge) noDocBadge.style.display = 'block';
+    renderSuggestedPrompts('');
     showState('upload');
     return;
   }

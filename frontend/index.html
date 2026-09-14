@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/style.css?v=12">
+    <link rel="stylesheet" href="/static/style.css?v=13">
 </head>
 <body>
     <!-- Interactive Neural Vector Constellation Canvas -->
@@ -290,12 +290,12 @@
                         <!-- Chat Controls Bar (Suggested Prompts & Input) -->
                         <div class="chat-input-bar">
                             <!-- Analyst Preset Prompt Chips -->
-                            <div class="analyst-prompts">
+                            <div class="analyst-prompts" id="suggestedPromptsContainer">
                                 <span class="prompt-label">Quick Analysis:</span>
-                                <button class="prompt-chip" onclick="setQuestion('What was total revenue and net income?')">💰 Revenue & Income</button>
-                                <button class="prompt-chip" onclick="setQuestion('What caused operating expenses to change?')">📊 Operating Expenses</button>
-                                <button class="prompt-chip" onclick="setQuestion('What key risks did management identify?')">⚠️ Risk Factors</button>
-                                <button class="prompt-chip" onclick="setQuestion('Summarize the key growth highlights and strategic goals')">🚀 Growth Strategy</button>
+                                <button type="button" class="prompt-chip" onclick="setQuestion('Provide a comprehensive summary of the main points in this document')">📑 Document Summary</button>
+                                <button type="button" class="prompt-chip" onclick="setQuestion('What are the primary topics and key concepts discussed in this document?')">🔍 Core Topics</button>
+                                <button type="button" class="prompt-chip" onclick="setQuestion('What key findings, important details, or warnings are highlighted in this document?')">⚠️ Key Insights</button>
+                                <button type="button" class="prompt-chip" onclick="setQuestion('Summarize the final conclusions and key takeaways from this document')">🎯 Key Takeaways</button>
                             </div>
 
                             <!-- Input Form -->
