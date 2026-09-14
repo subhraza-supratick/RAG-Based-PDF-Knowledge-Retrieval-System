@@ -91,7 +91,7 @@ def generate_grounded_answer(
         except Exception:
             config = None
 
-        candidates = [LLM_MODEL, "gemini-3.6-flash", "gemini-2.5-flash"]
+        candidates = [LLM_MODEL, "gemini-3.5-flash-lite", "gemini-3.5-flash", "gemini-3.6-flash", "gemini-3.7-flash", "gemini-flash-latest"]
         seen = set()
         models_to_try = [m for m in candidates if not (m in seen or seen.add(m))]
 
