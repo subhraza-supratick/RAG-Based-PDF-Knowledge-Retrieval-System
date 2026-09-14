@@ -249,41 +249,33 @@ body {
     border-color: var(--border-highlight);
 }
 
-button.doc-item-delete {
-    appearance: none;
-    -webkit-appearance: none;
-    background: transparent !important;
-    background-color: transparent !important;
-    border: 1px solid transparent !important;
-    outline: none !important;
-    box-shadow: none !important;
+.doc-item-delete {
+    background: transparent;
+    border: 1px solid transparent;
     color: var(--text-muted);
-    width: 28px;
-    height: 28px;
-    padding: 0;
-    border-radius: 8px;
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
     cursor: pointer;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    opacity: 0.6;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0.5;
+    transition: all 0.2s ease;
     flex-shrink: 0;
     margin-left: 8px;
 }
 
-.sidebar-doc-item:hover button.doc-item-delete {
-    opacity: 1;
-    background: rgba(255, 255, 255, 0.06) !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
+.sidebar-doc-item:hover .doc-item-delete {
+    opacity: 0.85;
+    background: rgba(255, 255, 255, 0.08);
 }
 
-button.doc-item-delete:hover {
+.doc-item-delete:hover {
+    opacity: 1 !important;
     color: #f43f5e !important;
-    background: rgba(244, 63, 94, 0.2) !important;
+    background: rgba(244, 63, 94, 0.25) !important;
     border-color: rgba(244, 63, 94, 0.4) !important;
-    box-shadow: 0 0 10px rgba(244, 63, 94, 0.3) !important;
-    transform: scale(1.08);
 }
 
 .doc-item-meta {
