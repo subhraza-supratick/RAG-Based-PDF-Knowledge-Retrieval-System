@@ -9,11 +9,14 @@ def chunk_document_pages(
     pages: List[Dict[str, Any]],
     document_id: int,
     chunk_size: int = CHUNK_SIZE,
-    chunk_overlap: int = CHUNK_OVERLAP
+    chunk_overlap: int = CHUNK_OVERLAP,
+    min_chunk_len: int = 60
 ) -> List[Dict[str, Any]]:
     """
     Phase 3: Chunking.
     Splits page-level text into chunks while preserving metadata.
+    Merges tiny low-information header/footer fragments (< min_chunk_len)
+    into adjacent contextual page chunks.
     
     Critical Rule: Every chunk retains its document_id, page_number, chunk_index, and text.
     """
@@ -35,8 +38,32 @@ def chunk_document_pages(
             
         # Split text within the current page
         split_texts = splitter.split_text(page_text)
-        
+        merged_texts: List[str] = []
+        buffer = ""
+
         for text_chunk in split_texts:
+            clean_chunk = text_chunk.strip()
+            if not clean_chunk:
+                continue
+
+            if buffer:
+                buffer = buffer + "\n" + clean_chunk
+                if len(buffer) >= min_chunk_len:
+                    merged_texts.append(buffer)
+                    buffer = ""
+            else:
+                if len(clean_chunk) < min_chunk_len:
+                    buffer = clean_chunk
+                else:
+                    merged_texts.append(clean_chunk)
+
+        if buffer:
+            if merged_texts:
+                merged_texts[-1] = merged_texts[-1] + "\n" + buffer
+            elif len(buffer) >= 20:
+                merged_texts.append(buffer)
+
+        for text_chunk in merged_texts:
             if not text_chunk.strip():
                 continue
             all_chunks.append({
