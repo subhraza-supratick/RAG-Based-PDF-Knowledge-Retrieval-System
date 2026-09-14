@@ -81,16 +81,26 @@ def generate_grounded_answer(
 
     # 3. LLM Answer Generation with Quota/Limit & Multi-Model Fallback
     if client:
+        config = None
+        try:
+            from google.genai import types
+            config = types.GenerateContentConfig(
+                max_output_tokens=400,
+                temperature=0.2
+            )
+        except Exception:
+            config = None
+
         candidates = [LLM_MODEL, "gemini-3.6-flash", "gemini-2.5-flash"]
         seen = set()
         models_to_try = [m for m in candidates if not (m in seen or seen.add(m))]
 
         for model_name in models_to_try:
             try:
-                response = client.models.generate_content(
-                    model=model_name,
-                    contents=prompt
-                )
+                kwargs = {"model": model_name, "contents": prompt}
+                if config:
+                    kwargs["config"] = config
+                response = client.models.generate_content(**kwargs)
                 txt = response.text.strip() if (response and response.text) else ""
                 if txt and not any(err in txt for err in ["Gemini API error", "429", "RESOURCE_EXHAUSTED"]):
                     answer_text = txt
