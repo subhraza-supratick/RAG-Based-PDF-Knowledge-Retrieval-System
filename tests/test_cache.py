@@ -58,25 +58,23 @@ class TestQueryMemorySystem:
 
 class TestAPIFallbackSystem:
     def test_fallback_when_llm_api_raises_exception(self):
-        from backend.embeddings import get_query_embedding
-        question = "What is the revenue?"
-        q_emb = get_query_embedding(question)
-
-        # Insert test document & chunk
-        doc_id = insert_document("sample_report.pdf", 1)
-        insert_chunks([{
+        doc_id = 999
+        fake_chunks = [{
+            "chunk_id": 1,
             "document_id": doc_id,
-            "page_number": 1,
+            "page": 1,
             "chunk_index": 0,
+            "filename": "sample_report.pdf",
             "text": "The company reported total quarterly revenue of $50 million.",
-            "embedding": q_emb
-        }])
+            "score": 0.95
+        }]
 
-        with patch('backend.rag._client') as mock_client, \
+        with patch('backend.rag.retrieve_semantic_chunks', return_value=(fake_chunks, 10.0)), \
+             patch('backend.rag._client') as mock_client, \
              patch('backend.rag._GEMINI_LLM_AVAILABLE', True):
             mock_client.models.generate_content.side_effect = Exception("429 RESOURCE_EXHAUSTED: Rate limit exceeded")
 
-            result = generate_grounded_answer(question, document_id=doc_id)
+            result = generate_grounded_answer("What is the revenue?", document_id=doc_id)
 
             assert "answer" in result
             assert "Offline Context Summary" in result["answer"]
