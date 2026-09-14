@@ -69,10 +69,11 @@ class TestAPIFallbackSystem:
             "score": 0.95
         }]
 
+        mock_client = MagicMock()
+        mock_client.models.generate_content.side_effect = Exception("429 RESOURCE_EXHAUSTED: Rate limit exceeded")
+
         with patch('backend.rag.retrieve_semantic_chunks', return_value=(fake_chunks, 10.0)), \
-             patch('backend.rag._client') as mock_client, \
-             patch('backend.rag._GEMINI_LLM_AVAILABLE', True):
-            mock_client.models.generate_content.side_effect = Exception("429 RESOURCE_EXHAUSTED: Rate limit exceeded")
+             patch('backend.rag._get_genai_client', return_value=mock_client):
 
             result = generate_grounded_answer("What is the revenue?", document_id=doc_id)
 
@@ -82,25 +83,32 @@ class TestAPIFallbackSystem:
             assert len(result["sources"]) > 0
 
     def test_memory_cache_serves_cached_result_without_api_call(self):
-        from backend.embeddings import get_query_embedding
-        question = "How much did net income grow?"
-        q_emb = get_query_embedding(question)
+        doc_id = 1001
+        mock_client = MagicMock()
+        mock_response = MagicMock()
+        mock_response.text = "Net income grew by 25%."
+        mock_client.models.generate_content.return_value = mock_response
 
-        doc_id = insert_document("cached_doc.pdf", 1)
-        insert_chunks([{
+        fake_chunks = [{
+            "chunk_id": 1,
             "document_id": doc_id,
-            "page_number": 1,
+            "page": 1,
             "chunk_index": 0,
+            "filename": "cached_doc.pdf",
             "text": "Net income grew by 25 percent year-over-year.",
-            "embedding": q_emb
-        }])
+            "score": 0.95
+        }]
 
-        # First call populates cache
-        res1 = generate_grounded_answer(question, document_id=doc_id)
-        assert "answer" in res1
+        with patch('backend.rag.retrieve_semantic_chunks', return_value=(fake_chunks, 5.0)), \
+             patch('backend.rag._get_genai_client', return_value=mock_client):
 
-        # Second identical call must return cached result
-        res2 = generate_grounded_answer(question, document_id=doc_id)
-        assert res2.get("cached") is True
-        assert res2["metrics"]["retrieval_ms"] == 0.0
-        assert res2["metrics"]["generation_ms"] == 0.0
+            # First call populates cache with live response
+            res1 = generate_grounded_answer("How much did net income grow?", document_id=doc_id)
+            assert "answer" in res1
+            assert res1.get("is_fallback") is False
+
+            # Second call must return cached result
+            res2 = generate_grounded_answer("How much did net income grow?", document_id=doc_id)
+            assert res2.get("cached") is True
+            assert res2["metrics"]["retrieval_ms"] == 0.0
+            assert res2["metrics"]["generation_ms"] == 0.0

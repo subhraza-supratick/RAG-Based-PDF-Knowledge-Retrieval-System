@@ -9,7 +9,13 @@ env_path = BASE_DIR / ".env"
 if env_path.exists():
     load_dotenv(dotenv_path=env_path)
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+def get_gemini_api_key() -> str:
+    """Dynamically fetch GEMINI_API_KEY from environment or .env file."""
+    if env_path.exists():
+        load_dotenv(dotenv_path=env_path, override=True)
+    return os.getenv("GEMINI_API_KEY", "")
+
+GEMINI_API_KEY = get_gemini_api_key()
 DB_PATH = Path(os.getenv("DB_PATH", "data/rag.db"))
 if not DB_PATH.is_absolute():
     DB_PATH = BASE_DIR / DB_PATH

@@ -1,20 +1,17 @@
 import hashlib
 import numpy as np
 from typing import List
-from backend.config import GEMINI_API_KEY, EMBEDDING_MODEL
+from backend.config import get_gemini_api_key, EMBEDDING_MODEL
 
-_GEMINI_AVAILABLE = False
-
-try:
-    from google import genai
-    from google.genai import types as genai_types
-    if GEMINI_API_KEY and GEMINI_API_KEY != "your_gemini_api_key_here":
-        _client = genai.Client(api_key=GEMINI_API_KEY)
-        _GEMINI_AVAILABLE = True
-    else:
-        _client = None
-except Exception:
-    _client = None
+def _get_genai_client():
+    api_key = get_gemini_api_key()
+    if api_key and api_key != "your_gemini_api_key_here":
+        try:
+            from google import genai
+            return genai.Client(api_key=api_key)
+        except Exception:
+            return None
+    return None
 
 def _mock_embedding(text: str, dim: int = 3072) -> np.ndarray:
     """Deterministic mock embedding for offline/test use."""
@@ -28,9 +25,10 @@ def get_embedding(text: str) -> np.ndarray:
     """Generate normalized float32 embedding. Falls back to mock if no API key."""
     if not text:
         return np.zeros(3072, dtype=np.float32)
-    if _GEMINI_AVAILABLE and _client:
+    client = _get_genai_client()
+    if client:
         try:
-            response = _client.models.embed_content(
+            response = client.models.embed_content(
                 model=EMBEDDING_MODEL,
                 contents=text,
             )
@@ -40,6 +38,7 @@ def get_embedding(text: str) -> np.ndarray:
         except Exception:
             pass
     return _mock_embedding(text)
+
 
 from concurrent.futures import ThreadPoolExecutor
 

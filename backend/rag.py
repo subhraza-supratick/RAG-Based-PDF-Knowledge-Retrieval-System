@@ -1,19 +1,18 @@
 import time
 from typing import List, Dict, Any, Optional
-from backend.config import GEMINI_API_KEY, LLM_MODEL
+from backend.config import get_gemini_api_key, LLM_MODEL
 from backend.retriever import retrieve_semantic_chunks
 from backend.database import get_cached_answer, save_cached_answer
 
-_GEMINI_LLM_AVAILABLE = False
-_client = None
-
-try:
-    from google import genai
-    if GEMINI_API_KEY and GEMINI_API_KEY != "your_gemini_api_key_here":
-        _client = genai.Client(api_key=GEMINI_API_KEY)
-        _GEMINI_LLM_AVAILABLE = True
-except Exception:
-    pass
+def _get_genai_client():
+    api_key = get_gemini_api_key()
+    if api_key and api_key != "your_gemini_api_key_here":
+        try:
+            from google import genai
+            return genai.Client(api_key=api_key)
+        except Exception:
+            return None
+    return None
 
 SYSTEM_PROMPT_TEMPLATE = """You are an expert document QA assistant.
 Answer using ONLY the supplied context. Do not invent facts.
@@ -50,11 +49,16 @@ def generate_grounded_answer(
     Retrieve top-k chunks and generate a grounded answer with page citations.
     First checks memory cache for zero-API latency retrieval.
     Falls back gracefully to offline context summary if API key limits are reached.
+    Bypasses cached fallbacks if a valid working API key is detected.
     """
+    client = _get_genai_client()
+
     # 1. Check Memory System (Query Cache)
     cached_res = get_cached_answer(question, document_id, top_k)
     if cached_res is not None:
-        return cached_res
+        # Bypass stale cached fallback if a working client is available
+        if not cached_res.get("is_fallback") or client is None:
+            return cached_res
 
     # 2. Perform Semantic Retrieval
     chunks, retrieval_ms = retrieve_semantic_chunks(question, document_id=document_id, top_k=top_k)
@@ -76,19 +80,22 @@ def generate_grounded_answer(
     is_fallback = False
 
     # 3. LLM Answer Generation with Quota/Limit Fallback
-    if _GEMINI_LLM_AVAILABLE and _client:
+    if client:
         try:
-            response = _client.models.generate_content(
+            response = client.models.generate_content(
                 model=LLM_MODEL,
                 contents=prompt
             )
             answer_text = response.text.strip() if (response and response.text) else ""
-            if "Gemini API error" in answer_text or "429" in answer_text:
+            if "Gemini API error" in answer_text or "429" in answer_text or "RESOURCE_EXHAUSTED" in answer_text:
                 answer_text = ""
                 is_fallback = True
         except Exception:
             answer_text = ""
             is_fallback = True
+    else:
+        is_fallback = True
+
 
     # 4. Local Offline Fallback if LLM unavailable or API Key limit reached
     if not answer_text:
