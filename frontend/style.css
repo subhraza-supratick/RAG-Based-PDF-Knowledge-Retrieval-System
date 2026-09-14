@@ -80,12 +80,82 @@ body {
     background: rgba(255, 255, 255, 0.28);
 }
 
+/* ─── ANIMATED BACKGROUND ORBS & AMBIENT MESH ────────────────────────────── */
+.bg-orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(100px);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+    will-change: transform;
+}
+
+.orb-1 {
+    top: -12%;
+    left: -8%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.65) 0%, rgba(139, 92, 246, 0.25) 70%, transparent 100%);
+    animation: floatOrb1 18s ease-in-out infinite alternate;
+}
+
+.orb-2 {
+    bottom: -15%;
+    right: -8%;
+    width: 650px;
+    height: 650px;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.55) 0%, rgba(6, 182, 212, 0.2) 70%, transparent 100%);
+    animation: floatOrb2 22s ease-in-out infinite alternate;
+}
+
+.orb-3 {
+    top: 35%;
+    left: 40%;
+    width: 480px;
+    height: 480px;
+    background: radial-gradient(circle, rgba(52, 211, 153, 0.4) 0%, rgba(99, 102, 241, 0.2) 70%, transparent 100%);
+    animation: floatOrb3 16s ease-in-out infinite alternate;
+}
+
+.bg-grid-overlay {
+    position: fixed;
+    inset: 0;
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.6;
+}
+
+@keyframes floatOrb1 {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(140px, 90px) scale(1.18); }
+    100% { transform: translate(-70px, 150px) scale(0.92); }
+}
+
+@keyframes floatOrb2 {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-150px, -100px) scale(1.22); }
+    100% { transform: translate(90px, -160px) scale(0.95); }
+}
+
+@keyframes floatOrb3 {
+    0% { transform: translate(0, 0) scale(0.9); }
+    50% { transform: translate(-100px, 110px) scale(1.28); }
+    100% { transform: translate(110px, -90px) scale(1); }
+}
+
 /* ─── APP SHELL LAYOUT ───────────────────────────────────────────────────── */
 .app-shell {
     display: flex;
     width: 100vw;
     height: 100vh;
     overflow: hidden;
+    position: relative;
+    z-index: 1;
 }
 
 /* ─── SIDEBAR ────────────────────────────────────────────────────────────── */
