@@ -178,15 +178,53 @@ function renderSidebarDocuments() {
           <span class="doc-item-sub">${doc.page_count} pages &bull; Ready</span>
         </div>
       </div>
+      <button class="doc-item-delete" title="Delete ${escapeAttr(doc.filename)}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        </svg>
+      </button>
     `;
 
     item.addEventListener('click', () => selectDocument(doc));
+
+    const deleteBtn = item.querySelector('.doc-item-delete');
+    deleteBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      if (confirm(`Delete document "${doc.filename}" and all associated vector chunks?`)) {
+        await deleteDocumentById(doc.id, doc.filename);
+      }
+    });
+
     sidebarDocList.appendChild(item);
   });
 
   if (state.activeDocumentId) {
     docSelect.value = state.activeDocumentId;
     deleteDocBtn.style.display = 'flex';
+  }
+}
+
+async function deleteDocumentById(docId, docName) {
+  try {
+    const res = await fetch(`/api/documents/${docId}/`, { method: 'DELETE' });
+    const data = await res.json();
+    showBanner(data.message || `Document "${docName}" deleted successfully.`, 'success');
+    
+    if (state.activeDocumentId === docId) {
+      state.activeDocumentId = null;
+      state.activeDocumentName = '';
+      state.activeDocumentPages = 0;
+      
+      if (activeDocBadge) activeDocBadge.style.display = 'none';
+      if (noDocBadge) noDocBadge.style.display = 'block';
+      deleteDocBtn.style.display = 'none';
+      showState('upload');
+    }
+
+    await loadDocuments();
+  } catch (e) {
+    showBanner('Failed to delete document.');
   }
 }
 
@@ -223,26 +261,7 @@ docSelect.addEventListener('change', () => {
 deleteDocBtn.addEventListener('click', async () => {
   if (!state.activeDocumentId) return;
   if (!confirm(`Delete document "${state.activeDocumentName}" and all associated vector index chunks?`)) return;
-  
-  try {
-    const res = await fetch(`/api/documents/${state.activeDocumentId}/`, { method: 'DELETE' });
-    const data = await res.json();
-    showBanner(data.message || 'Document deleted successfully.', 'success');
-    
-    state.activeDocumentId = null;
-    state.activeDocumentName = '';
-    state.activeDocumentPages = 0;
-    
-    if (activeDocBadge) activeDocBadge.style.display = 'none';
-    if (noDocBadge) noDocBadge.style.display = 'block';
-    deleteDocBtn.style.display = 'none';
-    
-    await loadDocuments();
-    showState('upload');
-    hideBanner();
-  } catch (e) {
-    showBanner('Failed to delete document.');
-  }
+  await deleteDocumentById(state.activeDocumentId, state.activeDocumentName);
 });
 
 // ─── File Upload & Indexing Pipeline ──────────────────────────────────────────

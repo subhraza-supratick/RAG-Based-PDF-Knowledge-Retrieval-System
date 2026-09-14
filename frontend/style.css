@@ -249,6 +249,30 @@ body {
     border-color: var(--border-highlight);
 }
 
+.doc-item-delete {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 5px 6px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.6;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+}
+
+.sidebar-doc-item:hover .doc-item-delete {
+    opacity: 1;
+}
+
+.doc-item-delete:hover {
+    color: var(--accent-rose);
+    background: rgba(244, 63, 94, 0.2);
+}
+
 .doc-item-meta {
     display: flex;
     align-items: center;
