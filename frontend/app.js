@@ -541,7 +541,7 @@ function initVectorConstellationCanvas() {
   const particleCount = 65;
   const maxDistance = 145;
   
-  const colors = ['#6366f1', '#38bdf8', '#34d399', '#8b5cf6'];
+  const colors = ['#7a1c30', '#800020', '#5c1325', '#be123c', '#9f1239'];
 
   function resize() {
     width = canvas.width = window.innerWidth;
@@ -601,7 +601,7 @@ function initVectorConstellationCanvas() {
           ctx.beginPath();
           ctx.moveTo(particles[i].x, particles[i].y);
           ctx.lineTo(particles[j].x, particles[j].y);
-          ctx.strokeStyle = '#38bdf8';
+          ctx.strokeStyle = '#7a1c30';
           ctx.globalAlpha = alpha;
           ctx.lineWidth = 0.8;
           ctx.stroke();
