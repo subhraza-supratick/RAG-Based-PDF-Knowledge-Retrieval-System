@@ -169,17 +169,19 @@ function renderSidebarDocuments() {
     item.className = `sidebar-doc-item ${state.activeDocumentId === doc.id ? 'active' : ''}`;
     item.innerHTML = `
       <div class="doc-item-meta">
-        <svg class="doc-item-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-          <polyline points="14 2 14 8 20 8"></polyline>
-        </svg>
+        <div class="doc-icon-badge">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+        </div>
         <div class="doc-item-details">
           <span class="doc-item-title" title="${escapeHtml(doc.filename)}">${escapeHtml(doc.filename)}</span>
-          <span class="doc-item-sub">${doc.page_count} pages &bull; Ready</span>
+          <span class="doc-item-sub">${doc.page_count} pages &bull; <span class="ready-tag">Ready</span></span>
         </div>
       </div>
       <span class="doc-item-delete" title="Delete ${escapeAttr(doc.filename)}" role="button">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
           <polyline points="3 6 5 6 21 6"></polyline>
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
         </svg>

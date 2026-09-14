@@ -173,41 +173,41 @@ body {
 
 /* ─── SIDEBAR ────────────────────────────────────────────────────────────── */
 .sidebar {
-    width: 320px;
-    background: var(--bg-sidebar);
-    border-right: 1px solid var(--border-color);
+    width: 325px;
+    background: linear-gradient(180deg, #f8f4eb 0%, #ede6d8 100%);
+    border-right: 1px solid rgba(136, 19, 55, 0.16);
     display: flex;
     flex-direction: column;
-    padding: 20px 16px;
-    gap: 20px;
+    padding: 22px 18px;
+    gap: 22px;
     flex-shrink: 0;
-    box-shadow: 6px 0 24px rgba(136, 19, 55, 0.05);
+    box-shadow: 6px 0 26px rgba(136, 19, 55, 0.06);
 }
 
 .sidebar-header {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 18px;
 }
 
 .brand {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 4px 8px;
+    padding: 4px 6px;
 }
 
 .brand-logo {
     position: relative;
-    width: 42px;
-    height: 42px;
-    background: var(--gradient-brand);
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #881337 0%, #5c0f24 100%);
     border-radius: var(--radius-md);
     display: flex;
     align-items: center;
     justify-content: center;
     color: #ffffff;
-    box-shadow: 0 6px 20px rgba(136, 19, 55, 0.4);
+    box-shadow: 0 6px 20px rgba(136, 19, 55, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2) inset;
 }
 
 .logo-glow {
@@ -215,7 +215,7 @@ body {
     inset: -3px;
     background: var(--gradient-brand);
     border-radius: var(--radius-md);
-    filter: blur(10px);
+    filter: blur(12px);
     opacity: 0.55;
     z-index: -1;
 }
@@ -226,39 +226,40 @@ body {
 }
 
 .brand-title {
-    font-size: 1.22rem;
-    font-weight: 700;
+    font-size: 1.25rem;
+    font-weight: 800;
     letter-spacing: -0.02em;
     display: flex;
     align-items: center;
     gap: 6px;
-    color: #0a0e17;
+    color: #0f172a;
 }
 
 .brand-badge {
     background: rgba(136, 19, 55, 0.14);
     color: var(--accent-burgundy);
-    font-size: 0.65rem;
+    font-size: 0.68rem;
     padding: 2px 8px;
     border-radius: 12px;
     border: 1px solid rgba(136, 19, 55, 0.3);
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .brand-sub {
-    font-size: 0.75rem;
+    font-size: 0.76rem;
     color: var(--text-muted);
+    font-weight: 500;
 }
 
 .btn-primary-glow {
     background: var(--gradient-brand);
     color: #ffffff;
     border: none;
-    padding: 12px 20px;
+    padding: 13px 20px;
     border-radius: var(--radius-md);
     font-family: var(--font-main);
-    font-weight: 600;
-    font-size: 0.9rem;
+    font-weight: 700;
+    font-size: 0.92rem;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -289,7 +290,7 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
     min-height: 0;
 }
 
@@ -297,32 +298,33 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 8px;
+    padding: 0 6px;
 }
 
 .sidebar-label {
-    font-size: 0.74rem;
-    font-weight: 700;
-    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #881337;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.09em;
 }
 
 .doc-count-badge {
-    background: rgba(136, 19, 55, 0.12);
+    background: #ffffff;
     color: var(--accent-burgundy);
-    font-size: 0.72rem;
+    font-size: 0.74rem;
     font-family: var(--font-mono);
-    padding: 2px 9px;
-    border-radius: 10px;
-    border: 1px solid rgba(136, 19, 55, 0.22);
-    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 12px;
+    border: 1px solid rgba(136, 19, 55, 0.28);
+    font-weight: 800;
+    box-shadow: 0 2px 6px rgba(136, 19, 55, 0.08);
 }
 
 .sidebar-doc-list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
     overflow-y: auto;
     padding-right: 4px;
 }
@@ -331,68 +333,47 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 14px;
-    border-radius: var(--radius-md);
+    padding: 13px 15px;
+    border-radius: 14px;
     background: #ffffff;
-    border: 1px solid rgba(136, 19, 55, 0.12);
+    border: 1px solid rgba(136, 19, 55, 0.16);
     cursor: pointer;
     transition: all 0.22s ease;
-    box-shadow: 0 3px 10px rgba(136, 19, 55, 0.03);
+    box-shadow: 0 4px 14px rgba(136, 19, 55, 0.04);
 }
 
 .sidebar-doc-item:hover {
     background: #ffffff;
     border-color: var(--accent-burgundy);
-    transform: translateX(3px);
-    box-shadow: 0 6px 18px rgba(136, 19, 55, 0.12);
+    transform: translateX(4px);
+    box-shadow: 0 8px 22px rgba(136, 19, 55, 0.14);
 }
 
 .sidebar-doc-item.active {
     background: #ffffff;
     border-color: var(--accent-burgundy);
-    box-shadow: 0 0 18px rgba(136, 19, 55, 0.2);
+    border-left: 4px solid #881337;
+    box-shadow: 0 6px 20px rgba(136, 19, 55, 0.16);
 }
 
-.doc-item-delete {
-    background: transparent;
-    border: 1px solid transparent;
-    color: var(--text-muted);
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
-    cursor: pointer;
-    display: inline-flex;
+.doc-icon-badge {
+    width: 36px;
+    height: 36px;
+    background: rgba(136, 19, 55, 0.08);
+    border-radius: 10px;
+    display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0.6;
-    transition: all 0.2s ease;
+    color: var(--accent-burgundy);
+    border: 1px solid rgba(136, 19, 55, 0.18);
     flex-shrink: 0;
-    margin-left: 8px;
-}
-
-.sidebar-doc-item:hover .doc-item-delete {
-    opacity: 0.9;
-    background: rgba(136, 19, 55, 0.08);
-}
-
-.doc-item-delete:hover {
-    opacity: 1 !important;
-    color: #e11d48 !important;
-    background: rgba(225, 29, 72, 0.15) !important;
-    border-color: rgba(225, 29, 72, 0.35) !important;
-    box-shadow: 0 0 12px rgba(225, 29, 72, 0.25) !important;
 }
 
 .doc-item-meta {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     overflow: hidden;
-}
-
-.doc-item-icon {
-    color: var(--accent-burgundy);
-    flex-shrink: 0;
 }
 
 .doc-item-details {
@@ -403,16 +384,53 @@ body {
 
 .doc-item-title {
     font-size: 0.88rem;
-    font-weight: 600;
-    color: #0a0e17;
+    font-weight: 700;
+    color: #0f172a;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .doc-item-sub {
-    font-size: 0.73rem;
+    font-size: 0.74rem;
     color: var(--text-muted);
+    font-weight: 500;
+}
+
+.ready-tag {
+    color: #059669;
+    font-weight: 700;
+}
+
+.doc-item-delete {
+    background: rgba(136, 19, 55, 0.04);
+    border: 1px solid rgba(136, 19, 55, 0.12);
+    color: #94a3b8;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    margin-left: 8px;
+}
+
+.sidebar-doc-item:hover .doc-item-delete {
+    opacity: 1;
+    background: rgba(136, 19, 55, 0.08);
+    color: var(--accent-burgundy);
+}
+
+.doc-item-delete:hover {
+    opacity: 1 !important;
+    color: #ffffff !important;
+    background: #e11d48 !important;
+    border-color: #e11d48 !important;
+    box-shadow: 0 4px 12px rgba(225, 29, 72, 0.35) !important;
 }
 
 .empty-docs-notice {
